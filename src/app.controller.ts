@@ -7,6 +7,26 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return this.appService.getHello() + ' broski';
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              background-image: url('/bg-images/bg.png');
+              background-position: center;
+              background-repeat: no-repeat;
+              background-size: cover;
+              min-height: 100vh;
+            }
+          </style>
+        </head>
+        <body>
+          <h1 style="color:white">${this.appService.getHello()}</h1>
+        </body>
+      </html>
+    `;
   }
 }
