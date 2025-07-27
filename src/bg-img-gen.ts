@@ -7,31 +7,41 @@ type BackgroundOptions = {
     showGrid?: boolean
 }
 
-export function generateBackgroundImage({width, height, gridDivisions, showGrid = true}: BackgroundOptions) {
+export function generateBackgroundImage({width, height, gridDivisions, showGrid = false}: BackgroundOptions) {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
-    const grid = new Grid(width, height, gridDivisions)
+    const grid = new Grid(width, height, gridDivisions);
 
-    // Background color and test square
+    // Background color
     ctx.fillStyle = "#2d1a5e";
     ctx.fillRect(0, 0, width, height);
 
-    // The generator creates stars, starting from the top left border [0,0] and goes by row.
-    // Each star has ana area around it where where no other star can exist. Default: 20x20px
-    // There is an ever increasing chance of a star being created for each pixel traversed. The chance resets to base value when the star is created.
-    if (showGrid) {
-        grid.draw(ctx)
-    }
+    // Draw white circles in each grid space
+    const zoneSize = width / gridDivisions;
+    const circleRadius = zoneSize * 0.05; // Circle radius is 5% of the zone size
     
-    // Accessing first space
-    const space = grid.getSpace(5, 0);
-    if (space) {
-        space.content = "cona"
+    for (let y = 0; y < gridDivisions; y++) {
+        for (let x = 0; x < gridDivisions; x++) {
+            const centerX = (x * zoneSize) + (zoneSize / 2);
+            const centerY = (y * zoneSize) + (zoneSize / 2);
+            
+            // Draw white circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+        }
+    }
+
+    // Draw grid if enabled
+    if (showGrid) {
+        grid.draw(ctx);
     }
 
     const buffer = canvas.toBuffer("image/png");
     return buffer;
 }
+
 
 class Grid {
     private spaces: Array<Array<GridSpace>>;
@@ -47,10 +57,10 @@ class Grid {
         this.divisions = divisions;
         this.zoneWidth = width / divisions;
         this.zoneEdgeSize = (width % divisions !== 0) ? ((width % divisions) / 2) : 0;
-        this.startSpaces();
+        this.initSpaces();
     }
 
-    private startSpaces() {
+    private initSpaces() {
         this.spaces = [];
         for (let y = 0; y < this.divisions; y++) {
             this.spaces[y] = [];

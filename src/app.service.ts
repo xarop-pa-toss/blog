@@ -14,7 +14,7 @@ export class AppService implements OnModuleInit{
 			const bgImage = generateBackgroundImage({
 			width: 1024,
 			height: 768,
-			gridDivisions: 64
+			gridDivisions: 32
 			});
 			writeFileSync(join(__dirname, '..', 'public', 'bg-images', 'bg.png'), bgImage);
 	}        
