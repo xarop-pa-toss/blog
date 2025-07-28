@@ -18,7 +18,7 @@ export function generateBackgroundImage({width, height, gridDivisions, showGrid 
 
     // Draw white circles in each grid space
     const zoneSize = width / gridDivisions;
-    const circleRadius = zoneSize * 0.06; // Circle radius is 5% of the zone size
+    const circleRadius = zoneSize * 0.07; // Circle radius is 5% of the zone size
     
     for (let y = 0; y < gridDivisions; y++) {
         for (let x = 0; x < gridDivisions; x++) {
