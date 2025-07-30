@@ -1,13 +1,16 @@
 import { createCanvas, CanvasRenderingContext2D } from 'canvas';
+import * as helpers from './helpers';
 
 type BackgroundOptions = {
     width: number,
     height: number,
     gridDivisions: number,
+    minStarSizePerc?: number,
+    maxStarSizePerc?: number,
     showGrid?: boolean
 }
 
-export function generateBackgroundImage({width, height, gridDivisions, showGrid = false}: BackgroundOptions) {
+export function generateBackgroundImage({width, height, gridDivisions, minStarSizePerc = 0.03, maxStarSizePerc = 0.08, showGrid = false}: BackgroundOptions) {
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
     const grid = new Grid(width, height, gridDivisions);
@@ -16,23 +19,25 @@ export function generateBackgroundImage({width, height, gridDivisions, showGrid 
     ctx.fillStyle = "#2d1a5e";
     ctx.fillRect(0, 0, width, height);
 
-    // Draw white circles in each grid space
+    // Draw variable sized stars in each GridSpace
     const zoneSize = width / gridDivisions;
-    const circleRadius = zoneSize * 0.07; // Circle radius is 5% of the zone size
-    
-    for (let y = 0; y < gridDivisions; y++) {
-        for (let x = 0; x < gridDivisions; x++) {
-            const centerX = (x * zoneSize) + (zoneSize / 2);
-            const centerY = (y * zoneSize) + (zoneSize / 2);
-            
-            // Draw white circle
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
-            ctx.fillStyle = 'white';
-            ctx.fill();
-        }
-    }
 
+    grid.spaces.forEach(row => {
+        row.forEach(cell => {
+            const randomStarSize = helpers.randomFloatFromInterval(minStarSizePerc, maxStarSizePerc)
+            const starRadius = zoneSize * randomStarSize 
+
+            // Randomize location of star inside each GridSpace
+            const randX: number = cell.x + Math.floor(Math.random() * zoneSize)
+            const randY = cell.y + Math.floor(Math.random() * zoneSize);
+
+            ctx.beginPath();
+            ctx.arc(randX, randY, starRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffaed7';
+            ctx.fill();
+        });
+    });
+    
     // Draw grid if enabled
     if (showGrid) {
         grid.draw(ctx);
@@ -42,9 +47,8 @@ export function generateBackgroundImage({width, height, gridDivisions, showGrid 
     return buffer;
 }
 
-
 class Grid {
-    private spaces: Array<Array<GridSpace>>;
+    public spaces: Array<Array<GridSpace>>;
     private width: number
     private height: number
     private divisions: number
@@ -104,7 +108,7 @@ class GridSpace {
 }
 
 function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, gridDivisions: number, lineWidth: number) {    
-    ctx.strokeStyle = "#ffaed7"
+    ctx.strokeStyle = "white"
     ctx.lineWidth = lineWidth
 
     // Grid cells are squares. Width was chosen as the base measurement.
@@ -146,3 +150,4 @@ function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, 
 
     return {zoneWidth, zoneWidthLeftover}
 }
+
